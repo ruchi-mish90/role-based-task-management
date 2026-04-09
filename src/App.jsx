@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import Users from './pages/Users';
 import Auth from './pages/Auth';
+import Analytics from './pages/Analytics';
 import { useAuth } from './context/AuthContext';
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/tasks" element={<Tasks />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/auth" element={<Navigate to="/" replace />} />
           <Route path="/users" element={canViewUsers ? <Users /> : <Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

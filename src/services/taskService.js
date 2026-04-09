@@ -54,3 +54,12 @@ export const removeTask = async (id) => {
   if (!response.ok) throw new Error('Failed to delete task');
   return response.json();
 };
+
+export const fetchAnalytics = async () => {
+  const response = await fetch(`${API_BASE}/tasks/analytics`, {
+    headers: withAuth(),
+  });
+
+  if (!response.ok) throw new Error('Failed to fetch analytics');
+  return response.json();
+};

@@ -10,6 +10,7 @@ const Sidebar = () => {
     const base = [
       { to: '/', icon: '◻', label: 'Dash' },
       { to: '/tasks', icon: '✓', label: 'Tasks' },
+      { to: '/analytics', icon: '📊', label: 'Analytics' },
     ];
 
     if (user?.role === 'admin') {

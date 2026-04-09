@@ -121,3 +121,51 @@ export const deleteTask = async (req, res) => {
     return res.status(500).json({ message: 'Failed to delete task' });
   }
 };
+
+export const getAnalytics = async (req, res) => {
+  try {
+    const scope = await buildTaskScope(req.user);
+
+    // Status breakdown
+    const statusCounts = await Task.aggregate([
+      { $match: scope },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]);
+
+    // Tasks created per day (last 14 days)
+    const since = new Date();
+    since.setDate(since.getDate() - 13);
+    const daily = await Task.aggregate([
+      { $match: { ...scope, createdAt: { $gte: since } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Leaderboard: top users by completed tasks
+    const leaderboard = await Task.aggregate([
+      { $match: { ...scope, status: 'completed' } },
+      { $group: { _id: '$ownerId', completed: { $sum: 1 } } },
+      { $sort: { completed: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      { $project: { name: '$user.name', role: '$user.role', completed: 1 } },
+    ]);
+
+    return res.status(200).json({ statusCounts, daily, leaderboard });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch analytics' });
+  }
+};
