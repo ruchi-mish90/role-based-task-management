@@ -1,15 +1,12 @@
-import { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Pagination from '../components/tasks/Pagination';
 import SearchBar from '../components/tasks/SearchBar';
 import StatusFilter from '../components/tasks/StatusFilter';
 import TaskList from '../components/tasks/TaskList';
 import TaskModal from '../components/tasks/TaskModal';
+import { createTask, fetchTasks, removeTask, updateTask } from '../services/taskService';
 
-const demoTasks = [
-  { _id: 't1', title: 'Finish API docs', description: 'Write endpoint docs for manager view', status: 'pending' },
-  { _id: 't2', title: 'Refactor auth', description: 'Clean middleware naming and logs', status: 'in-progress' },
-  { _id: 't3', title: 'Push deployment', description: 'Ship on Friday with smoke checks', status: 'completed' },
-];
+const PAGE_SIZE = 6;
 
 const Tasks = () => {
   const [search, setSearch] = useState('');
@@ -17,35 +14,52 @@ const Tasks = () => {
   const [page, setPage] = useState(1);
   const [openModal, setOpenModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
-  const [tasks, setTasks] = useState(demoTasks);
+  const [tasks, setTasks] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const filtered = useMemo(() => {
-    return tasks.filter((task) => {
-      const statusMatch = status ? task.status === status : true;
-      const searchMatch = `${task.title} ${task.description}`
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      return statusMatch && searchMatch;
-    });
-  }, [tasks, search, status]);
-
-  const pageSize = 6;
-  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
-  const sliced = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  const handleSaveTask = (payload) => {
-    if (editingTask) {
-      setTasks((prev) => prev.map((task) => (task._id === editingTask._id ? { ...task, ...payload } : task)));
-    } else {
-      setTasks((prev) => [{ _id: `t${Date.now()}`, ...payload }, ...prev]);
+  const loadTasks = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await fetchTasks({ search, status, page, limit: PAGE_SIZE });
+      setTasks(data.tasks || []);
+      setTotalPages(data.totalPages || 1);
+    } catch (loadError) {
+      setError(loadError.message || 'Could not load tasks');
+    } finally {
+      setLoading(false);
     }
+  }, [page, search, status]);
 
-    setOpenModal(false);
-    setEditingTask(null);
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+  const handleSaveTask = async (payload) => {
+    try {
+      if (editingTask) {
+        await updateTask(editingTask._id, payload);
+      } else {
+        await createTask(payload);
+      }
+
+      setOpenModal(false);
+      setEditingTask(null);
+      await loadTasks();
+    } catch (saveError) {
+      setError(saveError.message || 'Could not save task');
+    }
   };
 
-  const handleDelete = (id) => {
-    setTasks((prev) => prev.filter((task) => task._id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await removeTask(id);
+      await loadTasks();
+    } catch (deleteError) {
+      setError(deleteError.message || 'Could not delete task');
+    }
   };
 
   const startEdit = (task) => {
@@ -57,19 +71,39 @@ const Tasks = () => {
     <div className="page-wrap">
       <header className="page-head">
         <h2>Tasks</h2>
-        <p>Search, filter, and manage tasks with smooth interactions.</p>
+        <p>Create, filter, and manage tasks.</p>
       </header>
 
-      <section className="toolbar glass-strip">
-        <SearchBar value={search} onChange={setSearch} />
-        <StatusFilter value={status} onChange={setStatus} />
-        <button className="glow-btn" type="button" onClick={() => setOpenModal(true)}>
+      <section className="toolbar panel">
+        <SearchBar
+          value={search}
+          onChange={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+        />
+        <StatusFilter
+          value={status}
+          onChange={(value) => {
+            setStatus(value);
+            setPage(1);
+          }}
+        />
+        <button className="primary-btn" type="button" onClick={() => setOpenModal(true)}>
           + New Task
         </button>
       </section>
 
-      <TaskList tasks={sliced} onEdit={startEdit} onDelete={handleDelete} />
-      <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+      {error && <p className="error-msg">{error}</p>}
+
+      {loading ? (
+        <p className="empty-msg">Loading tasks...</p>
+      ) : (
+        <>
+          <TaskList tasks={tasks} onEdit={startEdit} onDelete={handleDelete} />
+          <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+        </>
+      )}
 
       <TaskModal
         open={openModal}

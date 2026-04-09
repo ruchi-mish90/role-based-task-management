@@ -1,12 +1,13 @@
+import React from 'react';
 import StatsCard from './StatsCard';
 
-const SummaryCards = () => {
+const SummaryCards = ({ stats }) => {
   return (
-    <section className="summary-grid fade-up">
-      <StatsCard title="Pending" value="14" tone="amber" wide />
-      <StatsCard title="In Progress" value="8" tone="blue" />
-      <StatsCard title="Completed" value="31" tone="green" />
-      <StatsCard title="Assigned Today" value="5" tone="purple" />
+    <section className="summary-grid">
+      <StatsCard title="Total Tasks" value={stats.total} tone="blue" />
+      <StatsCard title="Pending" value={stats.pending} tone="amber" />
+      <StatsCard title="In Progress" value={stats.inProgress} tone="purple" />
+      <StatsCard title="Completed" value={stats.completed} tone="green" />
     </section>
   );
 };

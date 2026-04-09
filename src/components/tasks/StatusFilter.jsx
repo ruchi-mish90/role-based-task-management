@@ -1,3 +1,4 @@
+import React from 'react';
 const StatusFilter = ({ value, onChange }) => {
   return (
     <label className="status-filter">

@@ -1,3 +1,4 @@
+import React from 'react';
 const Pagination = ({ page, totalPages, onPage }) => {
   const prevDisabled = page <= 1;
   const nextDisabled = page >= totalPages;

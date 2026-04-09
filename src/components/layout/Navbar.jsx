@@ -1,3 +1,4 @@
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,8 +15,8 @@ const Navbar = () => {
   return (
     <nav className="navbar-float fade-down">
       <div className="nav-left">
-        <p className="brand-title">TaskCanvas</p>
-        <span className="brand-sub">student build / handcrafted ui</span>
+        <p className="brand-title">RBAC Task Manager</p>
+        <span className="brand-sub">Internal team workspace</span>
       </div>
 
       <div className="nav-center">{pageNames[pathname] || 'Workspace'}</div>

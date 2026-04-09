@@ -2,10 +2,15 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 const withAuth = () => {
   const token = localStorage.getItem('rbac_token');
-  return {
+  const headers = {
     'Content-Type': 'application/json',
-    Authorization: token ? `Bearer ${token}` : '',
   };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
 };
 
 export const fetchTasks = async ({ search = '', status = '', page = 1, limit = 8 } = {}) => {
