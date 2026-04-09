@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginUser, registerUser } from '../services/authService';
 
-const initialForm = { name: '', email: '', password: '' };
+const initialForm = { name: '', email: '', password: '', role: 'user' };
 
 const Auth = () => {
   const { user, login } = useAuth();
@@ -29,7 +29,7 @@ const Auth = () => {
               name: form.name,
               email: form.email,
               password: form.password,
-              role: 'user',
+              role: form.role,
             });
       login(response);
     } catch (submitError) {
@@ -46,12 +46,25 @@ const Auth = () => {
         <p>{mode === 'login' ? 'Sign in to continue.' : 'Create your account.'}</p>
 
         {mode === 'register' && (
-          <input
-            required
-            placeholder="Full name"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-          />
+          <>
+            <input
+              required
+              placeholder="Full name"
+              value={form.name}
+              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            />
+            <label className="status-filter">
+              <span>Role</span>
+              <select
+                value={form.role}
+                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+              >
+                <option value="user">User</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </label>
+          </>
         )}
 
         <input

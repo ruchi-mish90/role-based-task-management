@@ -1,33 +1,22 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
-const demoUser = {
-  id: 'u_101',
-  name: 'Aarav',
-  role: 'admin',
-};
-
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('rbac_user');
-    if (!stored) {
-      return demoUser;
-    }
-
+    if (!stored) return null;
     try {
       return JSON.parse(stored);
-    } catch (error) {
-      console.warn('Invalid rbac_user in localStorage, resetting to demo user');
+    } catch {
       localStorage.removeItem('rbac_user');
-      return demoUser;
+      return null;
     }
   });
 
   const login = (nextUser) => {
     setUser(nextUser);
     localStorage.setItem('rbac_user', JSON.stringify(nextUser));
-
     if (nextUser?.token) {
       localStorage.setItem('rbac_token', nextUser.token);
     }
@@ -46,9 +35,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };

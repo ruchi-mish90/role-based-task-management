@@ -7,11 +7,9 @@ export const registerUser = async (payload) => {
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    throw new Error('Registration failed');
-  }
-
-  return response.json();
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Registration failed');
+  return data;
 };
 
 export const loginUser = async (payload) => {
@@ -21,9 +19,7 @@ export const loginUser = async (payload) => {
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    throw new Error('Login failed');
-  }
-
-  return response.json();
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Login failed');
+  return data;
 };
