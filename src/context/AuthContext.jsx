@@ -1,20 +1,26 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
+const demoUser = {
+  id: 'u_101',
+  name: 'Aarav',
+  role: 'admin',
+};
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('rbac_user');
     if (!stored) {
-      return null;
+      return demoUser;
     }
 
     try {
       return JSON.parse(stored);
     } catch (error) {
-      console.warn('Invalid rbac_user in localStorage, resetting auth state');
+      console.warn('Invalid rbac_user in localStorage, resetting to demo user');
       localStorage.removeItem('rbac_user');
-      return null;
+      return demoUser;
     }
   });
 

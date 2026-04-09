@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Pagination from '../components/tasks/Pagination';
 import SearchBar from '../components/tasks/SearchBar';
 import StatusFilter from '../components/tasks/StatusFilter';

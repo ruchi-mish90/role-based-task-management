@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import UserList from '../components/users/UserList';
 import { assignUserManager, fetchUsers } from '../services/userService';
 
