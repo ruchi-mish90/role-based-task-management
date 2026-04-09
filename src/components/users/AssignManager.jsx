@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const AssignManager = ({ user, managers, onAssign }) => {
   const [managerId, setManagerId] = useState(user.managerId || '');

@@ -1,3 +1,4 @@
+import React from 'react';
 import AssignManager from './AssignManager';
 
 const UserList = ({ users, managers, onAssign }) => {
