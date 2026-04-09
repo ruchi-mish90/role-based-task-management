@@ -1,31 +1,54 @@
 import React, { useMemo, useState } from 'react';
 import UserList from '../components/users/UserList';
-
-const seedUsers = [
-  { id: 'u1', name: 'Meera', email: 'meera@mail.com', role: 'user', managerId: '' },
-  { id: 'u2', name: 'Kabir', email: 'kabir@mail.com', role: 'user', managerId: 'm1' },
-  { id: 'm1', name: 'Rohit', email: 'rohit@mail.com', role: 'manager', managerId: '' },
-  { id: 'm2', name: 'Naina', email: 'naina@mail.com', role: 'manager', managerId: '' },
-];
+import { assignUserManager, fetchUsers } from '../services/userService';
 
 const Users = () => {
-  const [users, setUsers] = useState(seedUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (loadError) {
+      setError(loadError.message || 'Could not load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
   const managers = useMemo(() => users.filter((u) => u.role === 'manager'), [users]);
   const regularUsers = useMemo(() => users.filter((u) => u.role === 'user'), [users]);
 
-  const handleAssign = (userId, managerId) => {
-    setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, managerId } : user)));
+  const handleAssign = async (userId, managerId) => {
+    try {
+      await assignUserManager(userId, managerId);
+      await loadUsers();
+    } catch (assignError) {
+      setError(assignError.message || 'Failed to assign manager');
+    }
   };
 
   return (
     <div className="page-wrap">
       <header className="page-head">
         <h2>User Assignments</h2>
-        <p>Only admin can see this and map users to managers.</p>
+        <p>Map team members to managers.</p>
       </header>
 
-      <UserList users={regularUsers} managers={managers} onAssign={handleAssign} />
+      {error && <p className="error-msg">{error}</p>}
+      {loading ? (
+        <p className="empty-msg">Loading users...</p>
+      ) : (
+        <UserList users={regularUsers} managers={managers} onAssign={handleAssign} />
+      )}
     </div>
   );
 };
