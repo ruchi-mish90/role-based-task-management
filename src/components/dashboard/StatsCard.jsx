@@ -1,3 +1,4 @@
+import React from 'react';
 const StatsCard = ({ title, value, tone = 'blue', wide = false }) => {
   return (
     <article className={`stats-card tone-${tone} ${wide ? 'wide' : ''}`}>

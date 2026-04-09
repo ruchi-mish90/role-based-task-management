@@ -1,3 +1,4 @@
+import React from 'react';
 import SummaryCards from '../components/dashboard/SummaryCards';
 
 const Dashboard = () => {

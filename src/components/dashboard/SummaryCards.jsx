@@ -1,3 +1,4 @@
+import React from 'react';
 import StatsCard from './StatsCard';
 
 const SummaryCards = () => {
